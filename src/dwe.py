@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import multiprocessing as mp
 
-from .utils import compute_dist, w2dist
+from .utils import compute_dist, w2dist, partial_dist
 
 
 class KLloss(nn.Module):
@@ -70,7 +70,7 @@ class DWE:
             loss_data = 0
             self.encoder.train()
             self.decoder.train()
-            for x1, x2, y in tqdm.tqdm_notebook(trainloader):
+            for x1, x2, y in trainloader:
                 if has_y:
                     x1 = x1[0]
                     x2 = x2[0]
@@ -122,17 +122,20 @@ class DWE:
         self.decoder = torch.load(f'{dir}/decoder_{name}')
 
 
+
+
 class DWE_dataset(torch.utils.data.Dataset):
     
-    def __init__(self, dataset, N, from_file=None, has_y=True):
+    def __init__(self, dataset, N, from_file=None, has_y=True, p=2):
         self.N = N
         self.dataset = dataset
         self.has_y = has_y
+        self.p = p
         
         self.width_im = self.dataset[0][0].shape[1]
         xx,yy = np.meshgrid(np.arange(self.width_im), np.arange(self.width_im))
         xy = np.hstack((xx.reshape(-1,1), yy.reshape(-1,1)))
-        self.M = ot.dist(xy, xy)
+        self.M = ot.dist(xy, xy, metric=partial_dist(p))
         
         if from_file is None:
             self._reset_pairs()
@@ -149,6 +152,7 @@ class DWE_dataset(torch.utils.data.Dataset):
             if (i1, i2) not in self.pairs.keys():
                 self.pairs[(i1, i2)] = y
                 pbar.update(1)
+        pbar.close()
         self.id_to_pair = dict(zip(np.arange(self.N), list(self.pairs.keys())))
 
     def save(self, path):

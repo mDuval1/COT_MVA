@@ -1,3 +1,4 @@
+import functools
 import numpy as np
 import pandas as pd
 import ot
@@ -21,6 +22,10 @@ def compute_dist(im1, im2, M):
 
 def decode_latent(decoder, z):
     return decoder(torch.tensor(z).float()[None]).detach().cpu().numpy()[0]
+
+
+def partial_dist(p):
+    return functools.partial(scipy.spatial.minkowski_distance_p, p=2)
 
 
 def w2dist(mn1, mn2):
