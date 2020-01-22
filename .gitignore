@@ -1,0 +1,14 @@
+data/
+figures/
+models/
+DUVAL_Project.aux
+DUVAL_Project.blg
+DUVAL_Project.log
+DUVAL_Project.out
+DUVAL_Slides.pdf
+.ipynb_checkpoints
+DUVAL_Project.synctex.gz
+.vscode
+DUVAL_Project.bbl
+Learning_Wasserstein_Embeddings.pdf
+src\__pycache__\
